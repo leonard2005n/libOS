@@ -6,8 +6,12 @@
 	mov bx, boot_os_message ; use bx as parameter for the function
 	call print_string
 
+	mov dx, 0x1fb6
+	call print_hex
+
 	jmp $
 
+%include "print_hex.asm"
 %include "print_string.asm"
 
 boot_os_message:

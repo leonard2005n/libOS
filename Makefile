@@ -6,7 +6,7 @@ QEMU = qemu-system-i386
 
 all: boot-sect.bin
 
-boot-sect.bin: boot-sect.asm print_string.asm
+boot-sect.bin: boot-sect.asm print_string.asm print_hex.asm
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
 run: boot-sect.bin
