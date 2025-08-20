@@ -1,9 +1,9 @@
-[org 0x7c00]
+;
+; A boot sector that prints a string using our function.
+;
+[org 0x7c00] ; Tell the assembler where this code will be loaded
 
-	mov ah, 0x0e
-
-
-	mov bx, boot_os_message
+	mov bx, boot_os_message ; use bx as parameter for the function
 	call print_string
 
 	jmp $
