@@ -1,0 +1,39 @@
+0x0-locul de unde porneste vectorul de interupturi
+
+0x7c00 - locul unde bios incarca boot-sectororul in memorie
+
+Comanda org 0x7c00 pune laberurile de la adressa 0x7c00 in colo.
+
+in loc de esp si ebp echivalentu lor in 16 bit real mode este
+sp si bp
+
+Ca sa initializam memoria de stack in bootloader trebuie sa mutam
+bp si sp mai sus de adresa 0x7e00 o putem initializa la 0x8000 ca
+sa fim sigur ca nu distrugem instructuiunile in memori.
+
+
+	org 0x7c00
+	mov ah, 0x0e
+
+	mov cx, 0
+	mov bx, boot_os_message
+print_string:
+
+	mov al, [bx]
+	cmp al, 0
+	je end_print_string
+	int 0x10
+
+	inc bx
+	inc cx
+	jmp print_string
+end_print_string:
+	jmp $
+
+boot_os_message:
+	db 'Welcome to libOS!!! Booting Os', 0
+
+; Padding and magic BIOS number.
+times 510-($-$$) db 0
+
+dw 0xaa55
