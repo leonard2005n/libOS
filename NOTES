@@ -11,27 +11,37 @@ Ca sa initializam memoria de stack in bootloader trebuie sa mutam
 bp si sp mai sus de adresa 0x7e00 o putem initializa la 0x8000 ca
 sa fim sigur ca nu distrugem instructuiunile in memori.
 
+Un sistem de operare modern ii trebuie mai mult de 64 kb pt tot sistemu
+asa ca exista niste registre de segmentare (cs, ds, ss, es) care ajuta
+sistemu sa incarce mai multe parti in sistemu de operare.
 
-	org 0x7c00
-	mov ah, 0x0e
+cs - code segment
+ds - data segment
+ss - stack segment
+es - extra segment
 
-	mov cx, 0
-	mov bx, boot_os_message
-print_string:
+Processorul calucleaza aceste adrese facand 16 * segment + offset.
+In 16 bit real mode noi putem accesa un MB in memorie.
 
-	mov al, [bx]
-	cmp al, 0
-	je end_print_string
-	int 0x10
 
-	inc bx
-	inc cx
-	jmp print_string
-end_print_string:
+;
+; A boot sector that prints a string using our function.
+;
+[org 0x7c00] ; Tell the assembler where this code will be loaded
+
+	mov bx, boot_os_message ; use bx as parameter for the function
+	call print_string
+
+	mov dx, 0x1fb6
+	call print_hex
+
 	jmp $
 
+%include "print_hex.asm"
+%include "print_string.asm"
+
 boot_os_message:
-	db 'Welcome to libOS!!! Booting Os', 0
+	db 'Welcome to libOS!!! Booting OS...', 0
 
 ; Padding and magic BIOS number.
 times 510-($-$$) db 0
