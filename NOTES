@@ -47,3 +47,14 @@ boot_os_message:
 times 510-($-$$) db 0
 
 dw 0xaa55
+
+
+32 bit protected mode
+In acest mod noi pierdem avatajale avand un bios care 
+decteaza periferice si display. Adica noi trebuie sa ne scriem
+drivere pt acestea.
+
+Ca sa scriem lucruri pe ecran o sa folosim VGA (80X25) astfel 
+care randeaza doar text. Aceasta de obicei se afla la 0xb8000 si retine
+doua lucruri care retine doi bytes unu pt caracterul ascii si altul pt 
+culoarea acestuia
