@@ -52,4 +52,5 @@ Boot/boot-sect.bin: Boot/boot-sect.asm
 # Clean up all generated files
 clean:
 	rm -f *.bin *.dis *.o os-image
-	rm -f Kernel/*.o Boot/*.bin Drivers/*.o
+	rm -f Kernel/*.o Kernel/kernel.bin
+	rm -f Boot/*.bin Drivers/*.o
