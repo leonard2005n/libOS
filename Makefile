@@ -2,28 +2,54 @@
 
 ASM = nasm
 ASMFLAGS = -f bin
+ASMFLAGS_ELF = -f elf32
 QEMU = qemu-system-i386
 CC = gcc
-CFLAGS = -ffreestanding
+CFLAGS = -ffreestanding -m32 -fno-pie
 LD = ld
-LDFLAGS = -o Kernel/kernel.bin -Ttext 0x1000 --oformat binary
+LDFLAGS = -m elf_i386 -Ttext 0x1000 --oformat binary
 
+# Automatically generate lists of sources using wildcards
+C_SOURCES = $(wildcard Kernel/*.c Drivers/*.c)
+HEADERS = $(wildcard Kernel/*.h Drivers/*.h)
+OBJ = $(C_SOURCES:.c=.o)
+
+# Default build target
 all: os-image
 
-os-image: boot-sect.bin Kernel/kernel.bin
-	cat boot-sect.bin Kernel/kernel.bin > os-image
-
-boot-sect.bin: boot-sect.asm ./print/print_string.asm ./print/print_hex.asm ./32bit/disk_load.asm ./32bit/gdt.asm ./32bit/switch_to_32bit.asm
-	$(ASM) $(ASMFLAGS) -o $@ $<
-
-Kernel/kernel.o: Kernel/kernel.c
-	$(CC) $(CFLAGS) -c Kernel/kernel.c -o Kernel/kernel.o
-
-Kernel/kernel.bin: Kernel/kernel.o
-	$(LD) $(LDFLAGS) Kernel/kernel.o
-
-run: os-image
+# Run QEMU to simulate booting of our code
+run: all
 	$(QEMU) -drive format=raw,file=os-image
 
+# This is the actual disk image that the computer loads
+# which is the combination of our compiled bootsector and kernel
+os-image: Boot/boot-sect.bin Kernel/kernel.bin
+	cat $^ > os-image
+
+# This builds the binary of our kernel from two object files:
+# - the kernel_entry, which jumps to main() in our kernel
+# - the compiled C kernel
+Kernel/kernel.bin: Kernel/kernel_entry.o $(OBJ)
+	$(LD) $(LDFLAGS) -o $@ Kernel/kernel_entry.o $(OBJ)
+
+# Generic rule for compiling C code to an object file
+# For simplicity, we assume C files depend on all header files
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Assemble the kernel_entry
+%.o: %.asm
+	$(ASM) $(ASMFLAGS_ELF) $< -o $@
+
+# Assemble the boot sector
+%.bin: %.asm
+	$(ASM) $(ASMFLAGS) $< -o $@
+
+# Build the boot sector binary
+Boot/boot-sect.bin: Boot/boot-sect.asm
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+# Clean up all generated files
 clean:
-	rm -f boot-sect.bin Kernel/kernel.o Kernel/kernel.bin os-image
+	rm -f *.bin *.dis *.o os-image
+	rm -f Kernel/*.o Boot/*.bin Drivers/*.o

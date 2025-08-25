@@ -15,12 +15,12 @@ KERNEL_OFFSET equ 0x1000
 
 	jmp $
 
-%include "./print/print_hex.asm"
-%include "./print/print_string.asm"
-%include "./32bit/disk_load.asm"
-%include "./32bit/gdt.asm"
-%include "./print/print_string_32bit.asm"
-%include "./32bit/switch_to_32bit.asm"
+%include "./Boot/print/print_hex.asm"
+%include "./Boot/print/print_string.asm"
+%include "./Boot/32bit/disk_load.asm"
+%include "./Boot/32bit/gdt.asm"
+%include "./Boot/print/print_string_32bit.asm"
+%include "./Boot/32bit/switch_to_32bit.asm"
 
 [bits 16]
 
@@ -30,7 +30,7 @@ load_kernel:
 	call print_string
 
 	mov bx, KERNEL_OFFSET ; loading the offset of the kernel
-	mov dh, 5 ; reading 5 sectors
+	mov dh, 9 ; reading 9 sectors to load into memory
 	mov dl, byte [BOOT_DRIVE] ; puting the boot device form wher to read
 	call disk_load 
 
@@ -63,6 +63,3 @@ mes_load_kernel:
 ; Padding and magic BIOS number.
 times 510-($-$$) db 0
 dw 0xaa55
-
-times 256 dw 0xdada
-times 256 dw 0xface
