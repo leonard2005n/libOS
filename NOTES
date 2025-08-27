@@ -58,3 +58,15 @@ Ca sa scriem lucruri pe ecran o sa folosim VGA (80X25) astfel
 care randeaza doar text. Aceasta de obicei se afla la 0xb8000 si retine
 doua lucruri care retine doi bytes unu pt caracterul ascii si altul pt 
 culoarea acestuia
+
+I/O  Programming
+Controlarul de floppy pe un intel adica DOR se afla la adressa 0x3F2 si putem
+muta primu bit de la acesta addresa ca sa pornim motorul dischetului
+
+mov dx, 0x3F2 ; trebui sa retinem adressa intr-un registru
+in al, dx ; citim ce este in dor de la adressa din dx in al
+or al, 00001000b ; pornim bitul pt motor
+put dx, al ; updatam dor device-ului
+
+in inline assemby in si out. Primu argument este destinatia si a doua este sura
+

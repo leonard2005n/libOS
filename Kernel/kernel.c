@@ -1,13 +1,7 @@
-void some_function()
-{
-
-}
+#include "../Drivers/screen.h"
 
 void main()
 {
-	// create a pointer to char that point to the first cell in the video
-	// memory
-	char *video_memory = (char *) 0xb8000;
-	*video_memory = 'X';
-	some_function();
+	clear_screen();
+	print("1\n2\n3\n4\n5\n6\nTHE SCREEN HAS SCROLLED");
 }
