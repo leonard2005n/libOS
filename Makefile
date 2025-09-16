@@ -10,9 +10,10 @@ LD = ld
 LDFLAGS = -m elf_i386 -Ttext 0x1000 --oformat binary
 
 # Automatically generate lists of sources using wildcards
-C_SOURCES = $(wildcard Kernel/*.c Drivers/*.c)
+C_SOURCES = $(wildcard Kernel/*.c Drivers/*.c Drivers/interupts/*.c)
+ASM_SOURCES = $(wildcard Drivers/interupts/*.asm)
 HEADERS = $(wildcard Kernel/*.h Drivers/*.h)
-OBJ = $(C_SOURCES:.c=.o)
+OBJ = $(C_SOURCES:.c=.o) $(ASM_SOURCES:.asm=.o)
 
 # Default build target
 all: os-image
@@ -49,8 +50,13 @@ Kernel/kernel.bin: Kernel/kernel_entry.o $(OBJ)
 Boot/boot-sect.bin: Boot/boot-sect.asm
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
+# Compile the asm file
+Drivers/interupts/isr.o: Drivers/interupts/isr.asm
+	$(ASM) $(ASMFLAGS_ELF) -o $@ $<
+
 # Clean up all generated files
 clean:
 	rm -f *.bin *.dis *.o os-image
 	rm -f Kernel/*.o Kernel/kernel.bin
-	rm -f Boot/*.bin Drivers/*.o
+	rm -f Boot/*.bin Drivers/*.o Drivers/interupts/*.o
+	
