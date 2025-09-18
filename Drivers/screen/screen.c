@@ -1,5 +1,5 @@
 #include "screen.h"
-#include "low_level.h"
+#include "../low_level/low_level.h"
 
 // Function that clears the screen
 void clear_screen()

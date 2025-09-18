@@ -8,15 +8,21 @@ This is a beginner-friendly project designed for educational purposes - a simple
 - **Basic Kernel**: Minimal kernel with video memory access
 - **32-bit Protected Mode**: Transition from 16-bit real mode to 32-bit protected mode
 - **GDT (Global Descriptor Table)**: Memory segmentation setup
+- **Basic I/O Port Access**: Functions to read/write to hardware ports
+- **Basic Print Functions**: Simple functions to print text to the screen
 
 ## Planned Features (TODO)
 
-- [ ] **Keyboard Driver**: Handle keyboard input and key mappings
-- [ ] **Video Driver**: Enhanced VGA text mode and graphics support
-- [ ] **Simple file system**: Basic file operations and storage
-- [ ] **Basic shell/command interpreter**: Interactive command-line interface
-- [ ] **Text editor**: Simple text editing capabilities
-- [ ] **Simple compiler/assembler**: Basic code compilation tools
+- [x] **Keyboard Driver**: Handle keyboard input and key mappings
+- [x] **Video Driver**: Enhanced VGA text mode and graphics support
+- [x] **PIC Initialization**: Programmable Interrupt Controller setup
+- [ ] **Memory Management**: Paging, heap, and stack management
+- [ ] **Interrupt Handling Framework**: Generalized interrupt/exception management
+- [ ] **Timer Services**: System timer and scheduling
+- [ ] **Simple File System**: Basic file operations and storage
+- [ ] **Basic Shell/Command Interpreter**: Interactive command-line interface
+- [ ] **Text Editor**: Simple text editing capabilities
+- [ ] **Simple Compiler/Assembler**: Basic code compilation tools
 
 ## Project Structure
 
@@ -56,7 +62,7 @@ sudo apt install nasm gcc qemu-system-x86 build-essential
 
 1. **Clone the repository** (if applicable):
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/leonard2005n/libOS
    cd libOS
    ```
 
@@ -83,10 +89,11 @@ sudo apt install nasm gcc qemu-system-x86 build-essential
 - [x] Basic video memory access
 - [x] 32-bit protected mode
 
-### Phase 2: Drivers (In Progress)
-- [ ] Keyboard driver with interrupt handling
-- [ ] Enhanced video driver with text utilities
-- [ ] Basic I/O port management
+### Phase 2: Drivers ✅
+- [x] Keyboard driver with interrupt handling
+- [x] Enhanced video driver with text utilities
+- [x] PIC (Programmable Interrupt Controller) initialization
+- [x] Basic I/O port management
 
 ### Phase 3: System Services
 - [ ] Memory management

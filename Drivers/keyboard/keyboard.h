@@ -11,9 +11,6 @@
 typedef struct {
 	unsigned char code;
 	unsigned char status_mask;
-	bool shift_pressed;
-	bool alt_pressed;
-	bool ctrl_pressed;
 	bool caps_lock;
 } key_event;
 

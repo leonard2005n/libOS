@@ -1,15 +1,22 @@
-#include "keybord.h"
-#include "low_level.h"
-#include "screen.h"
+#include "../low_level/low_level.h"
+#include "../screen/screen.h"
+#include "keyboard.h"
 
 key_event keyboard_buf[MAX_KEY_BUF];
 unsigned char buf_position = 0; 
 unsigned char cur_state;
+unsigned char current_modifiers;
+bool caps_lock_status;
+
 
 // This function will initialize the keyboard variables
 void keyboard_init(void)
 {
 	cur_state = NORMAL_STATE;
+	buf_position = 0;
+	current_modifiers = 0;
+	caps_lock_status = false;
+
     // Unmask IRQ1 (keyboard interrupt) in the PIC
     unsigned char mask = inb(0x21);  // Read the current PIC mask
     mask &= ~0x02;                  // Clear bit 1 (IRQ1)
@@ -36,11 +43,12 @@ void keyboard_irq_handler(void)
 	};
 
 	// Get the scancode form the ps2 controller
-	unsigned char scancode = inb(0x60);
+	int scancode = inb(0x60);
 
 	// This will set the state in which the scancode is
 	if (scancode == 0xE0) {
 		cur_state = PREFIX_STATE;
+
 		outb(0x20, 0x20);
 		__asm__ volatile ("sti");
 		return;
@@ -49,6 +57,7 @@ void keyboard_irq_handler(void)
 	// Store the next part of the scancode and the return to normal
 	if (cur_state == PREFIX_STATE) {
 		cur_state = NORMAL_STATE;
+
 		outb(0x20, 0x20);
 		__asm__ volatile ("sti");
 		return;
@@ -60,28 +69,69 @@ void keyboard_irq_handler(void)
 	// Putting the scancode in our scanodes history
 	if (!key_released) {
 		keyboard_buf[buf_position].code = scancode;
-		keyboard_buf[buf_position].status_mask = 0;
-        keyboard_buf[buf_position].shift_pressed = false;
-        keyboard_buf[buf_position].alt_pressed = false;
-        keyboard_buf[buf_position].ctrl_pressed = false;
-        keyboard_buf[buf_position].caps_lock = false;
 
-		// char ascii_char = get_char_from_scancode(keyboard_buf[buf_position]);
+		// If the key pressed and it is shift it will update the mask
+		if (scancode == 0x2A || scancode == 0x36) {
+        	current_modifiers |= 1 << SHIFT_MASK;
+		}
+
+		// if the key is pressed and it is ctrl it will update the mask
+		if (scancode == 0x1D) {
+        	current_modifiers |= 1 << CTRL_MASK;
+		}
+
+		// if the key is pressed and it is alt it will update the mask
+		if (scancode == 0x38) {
+			current_modifiers |= 1 << ALT_MASK;
+		}
+
+		// the caps lock is pressed
+		if (scancode == 0x3A) {
+			if(!caps_lock_status)
+				caps_lock_status = true;
+			else 
+				caps_lock_status = false;
+		}
+
+		keyboard_buf[buf_position].caps_lock = caps_lock_status;
+		keyboard_buf[buf_position].status_mask = current_modifiers;
+
 		char ascii_char = scancode_set1[scancode][0];
 
-		const bool shifted = keyboard_buf[buf_position].status_mask & SHIFT_MASK || keyboard_buf[buf_position].caps_lock;
+		// Handle the shisfted part
+		const bool shifted = (keyboard_buf[buf_position].status_mask & 
+		(1 << SHIFT_MASK)) || keyboard_buf[buf_position].caps_lock;
 	
+		// Decides if it should get the shifted one
 		if (shifted)
 			ascii_char = scancode_set1[keyboard_buf[buf_position].code][1];
 		else
 			ascii_char = scancode_set1[keyboard_buf[buf_position].code][0];
 
+		// Prints the character
 		if (ascii_char) {
             print_char(ascii_char, -1, -1, WHITE_ON_BLACK);
         }
 		
+		// Increments the buffer
 		buf_position++;
 		buf_position = buf_position % MAX_KEY_BUF;
+	} else {
+		
+		// if the shift key is released it will update the mask
+		if (scancode == 0x2A || scancode == 0x36) {
+			current_modifiers &= ~(1 << SHIFT_MASK);
+		}
+
+		// if the key is relessed and it is ctrl it will update the mask
+		if (scancode == 0x1D) {
+        	current_modifiers &= ~(1 << CTRL_MASK);
+		}
+
+		// if the key is released and it is alt it will update the mask
+		if (scancode == 0x38) {
+			current_modifiers &= ~(1 << ALT_MASK);
+		}
 	}
     
 	outb(0x20, 0x20);

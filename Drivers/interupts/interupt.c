@@ -1,8 +1,9 @@
 #include <stdbool.h>
-#include "../keybord.h"
+#include "../low_level/low_level.h"
+#include "../keyboard/keyboard.h"
+#include "../screen/screen.h"
 #include "interupt.h"
-#include "../screen.h"
-#include "../low_level.h"
+
 
 
 extern void keyboard_irq_handler(void);
@@ -37,27 +38,6 @@ void idt_init()
         idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
         vectors[vector] = true;
     }
-
-	// Initialize the PIC
-    // ICW1: Start initialization sequence
-    outb(0x20, 0x11);
-    outb(0xA0, 0x11);
-    
-    // ICW2: Set interrupt vector offsets
-    outb(0x21, 0x20); // Master PIC: IRQs 0-7 mapped to vectors 32-39
-    outb(0xA1, 0x28); // Slave PIC: IRQs 8-15 mapped to vectors 40-47
-    
-    // ICW3: Configure master/slave relationship
-    outb(0x21, 0x04); // Master PIC: Slave connected to IRQ2
-    outb(0xA1, 0x02); // Slave PIC: Cascade identity
-    
-    // ICW4: Set mode
-    outb(0x21, 0x01); // 8086 mode
-    outb(0xA1, 0x01); // 8086 mode
-    
-    // Mask all interrupts except keyboard (IRQ1)
-    outb(0x21, 0xFD); // Master PIC: Only IRQ1 unmasked
-    outb(0xA1, 0xFF); // Slave PIC: All masked
 
 	// Set up keyboard interrupt (IRQ1 -> vector 33)
     idt_set_descriptor(33, (void*)keyboard_irq_handler, 0x8E);

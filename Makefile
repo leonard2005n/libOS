@@ -9,10 +9,10 @@ CFLAGS = -ffreestanding -m32 -fno-pie
 LD = ld
 LDFLAGS = -m elf_i386 -Ttext 0x1000 --oformat binary
 
-# Automatically generate lists of sources using wildcards
-C_SOURCES = $(wildcard Kernel/*.c Drivers/*.c Drivers/interupts/*.c)
-ASM_SOURCES = $(wildcard Drivers/interupts/*.asm)
-HEADERS = $(wildcard Kernel/*.h Drivers/*.h)
+# Recursively find all C and ASM source files in Drivers/
+C_SOURCES := $(shell find Kernel -name '*.c') $(shell find Drivers -name '*.c')
+ASM_SOURCES := $(shell find Drivers -name '*.asm')
+HEADERS := $(shell find Kernel -name '*.h') $(shell find Drivers -name '*.h')
 OBJ = $(C_SOURCES:.c=.o) $(ASM_SOURCES:.asm=.o)
 
 # Default build target
@@ -58,5 +58,6 @@ Drivers/interupts/isr.o: Drivers/interupts/isr.asm
 clean:
 	rm -f *.bin *.dis *.o os-image
 	rm -f Kernel/*.o Kernel/kernel.bin
-	rm -f Boot/*.bin Drivers/*.o Drivers/interupts/*.o
+	rm -f Boot/*.bin
+	find Drivers -name '*.o' -delete
 	

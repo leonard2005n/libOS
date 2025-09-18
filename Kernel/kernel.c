@@ -1,7 +1,9 @@
-#include "../Drivers/screen.h"
-#include "../Drivers/keybord.h"
-#include "../Drivers/low_level.h"
+#include "../Drivers/PIC/PIC.h"
+#include "../Drivers/screen/screen.h"
+#include "../Drivers/keyboard/keyboard.h"
 #include "../Drivers/interupts/interupt.h"
+#include "../Drivers/low_level/low_level.h"
+
 
 
 void main()
@@ -9,6 +11,9 @@ void main()
     clear_screen();
     print("Welcome to libOS!\n");
     print("Type something:\n");
+
+	// Initialize pic
+	init_pic();
 
 	// Initialize idt
 	idt_init();
