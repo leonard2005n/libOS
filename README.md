@@ -55,7 +55,7 @@ Before building and running libOS, ensure you have the following tools installed
 ### Installation on Ubuntu/Debian:
 ```bash
 sudo apt update
-sudo apt install nasm gcc qemu-system-x86 build-essential
+sudo apt install nasm gcc quickemu build-essential
 ```
 
 ## How to Build and Run
